@@ -13,13 +13,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 
-public class MainControllerTest {
+public class GameControllerTest {
 
-    private MainController mainController;
+    private GameController gameController;
 
     @BeforeMethod
     public void resetController() {
-        mainController = TestBeanDefinitions.mainController();
+        gameController = TestBeanDefinitions.mainController();
     }
 
 
@@ -60,7 +60,7 @@ public class MainControllerTest {
      */
     @Test(dataProvider = "isValidIntProvider")
     public void test_isValid_nullString(String input, int min, int max, boolean expectedValue) {
-        boolean actualValue = mainController.isValidInt(input, min, max);
+        boolean actualValue = gameController.isValidInt(input, min, max);
         assertThat(actualValue).isEqualTo(expectedValue);
     }
 
@@ -73,7 +73,7 @@ public class MainControllerTest {
      */
     @Test
     public void test_readIntInRange() {
-        View view = mainController.getView();
+        View view = gameController.getView();
 
         doReturn(null)
         .doReturn("6")
@@ -83,7 +83,7 @@ public class MainControllerTest {
         doNothing().when(view).writeOutput(anyString());
 
         int expectedValue = 5;
-        int readValue = mainController.readIntInRange(1, 5);
+        int readValue = gameController.readIntInRange(1, 5);
 
         assertThat(readValue).isEqualTo(expectedValue);
     }
@@ -94,22 +94,22 @@ public class MainControllerTest {
      */
     @Test
     public void test_writeOutput_String() {
-        View view = mainController.getView();
+        View view = gameController.getView();
 
         String outputString = "output";
 
-        mainController.writeOutput(outputString);
+        gameController.writeOutput(outputString);
 
         verify(view).writeOutput(outputString);
     }
 
     @Test
     public void test_writeOutput_Menu() {
-        View view = mainController.getView();
+        View view = gameController.getView();
 
-        Menu menu = mainController.getGameEngine().getGameConfiguration().getMainMenu();
+        Menu menu = gameController.getGameEngine().getGameConfiguration().getMainMenu();
 
-        mainController.writeOutput(menu);
+        gameController.writeOutput(menu);
 
         verify(view, times(menu.getOptions().size() + 1)).writeOutput(anyString());
     }

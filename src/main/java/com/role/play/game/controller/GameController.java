@@ -14,11 +14,11 @@ import static com.role.play.game.common.Constants.SPACE;
  *
  * @author ddigges
  */
-public class MainController {
+public class GameController {
     private View view;
     private GameEngine gameEngine;
 
-    public MainController(View view, GameEngine gameEngine) {
+    public GameController(View view, GameEngine gameEngine) {
         this.view = view;
         gameEngine.setMenuInputProvider((min, max) -> readIntInRange(min, max));
         gameEngine.setInputProvider(() -> view.readInput());

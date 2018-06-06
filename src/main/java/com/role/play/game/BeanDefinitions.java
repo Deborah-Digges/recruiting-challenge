@@ -2,10 +2,9 @@ package com.role.play.game;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Scanner;
 
 import com.role.play.game.config.GameConfiguration;
-import com.role.play.game.controller.MainController;
+import com.role.play.game.controller.GameController;
 import com.role.play.game.io.ConsoleInputHandler;
 import com.role.play.game.model.GameEngine;
 import com.role.play.game.model.GameState;
@@ -21,8 +20,8 @@ import com.role.play.game.view.View;
  */
 public class BeanDefinitions {
 
-    public static MainController mainController() {
-        return new MainController(consoleView(), gameEngine());
+    public static GameController mainController() {
+        return new GameController(consoleView(), gameEngine());
     }
 
     public static GameEngine gameEngine() {

@@ -16,7 +16,7 @@ You can do one of three things:
 2. Resume an old game
 3. Exit
 
-### 1. Create a player
+### Create a player
 
 1.1 Enter your name
 
