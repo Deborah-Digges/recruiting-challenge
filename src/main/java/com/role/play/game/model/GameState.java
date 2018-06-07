@@ -17,6 +17,7 @@ public class GameState implements Serializable{
     private GameConfiguration gameConfiguration;
     private Character player;
     private Node currentNode;
+
     private Level currentLevel;
     private List<Level> levels;
 
@@ -45,6 +46,10 @@ public class GameState implements Serializable{
 
     public void setCurrentNode(Node currentNode) {
         this.currentNode = currentNode;
+    }
+
+    public Level getCurrentLevel() {
+        return currentLevel;
     }
 
 }

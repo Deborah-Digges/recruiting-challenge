@@ -7,9 +7,11 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import com.role.play.game.config.GameConfiguration;
 import com.role.play.game.model.entities.Character;
+import com.role.play.game.model.entities.Level;
 import com.role.play.game.model.entities.Menu;
 import com.role.play.game.model.entities.Node;
 import com.role.play.game.model.entities.Player;
@@ -69,53 +71,69 @@ public class GameEngine {
      * Initiates the game loop by looping over possible levels
      */
     private void startGameLoop() {
-        Node currentNode = gameState.getCurrentNode();
+        int currentLevel = getLevelNumber(gameState.getCurrentLevel());
+        for(int level=currentLevel; level<gameConfiguration.getLevels().size(); ++level) {
+            Node currentNode = gameState.getCurrentNode();
 
-        while(currentNode != null) {
-            messageDisplayer.accept(currentNode.getStoryLine());
-            String input = inputProvider.get();
+            while (currentNode != null) {
+                messageDisplayer.accept(currentNode.getStoryLine());
+                String input = inputProvider.get();
 
-            // Call the marshaller if we have reached a save command
-            if (isSaveCommand(input)) {
-                messageDisplayer.accept(gameConfiguration.getSaveFileQuery());
-                String path = inputProvider.get();
-                gameStateMarshaller.save(gameState, path);
-                break;
-            }
-
-            // Return if we have reached the last node
-            if (isLastNode(currentNode)) {
-                currentNode = null;
-                break;
-            }
-
-            // If there exists an enemy in the current node,
-            // initiate attack
-            if(currentNode.getCharacter() != null) {
-                messageDisplayer.accept(attackMessage(this.gameState.getPlayer(), currentNode.getCharacter()));
-                boolean success = getGameState().getPlayer().fight(currentNode.getCharacter());
-                messageDisplayer.accept(getSuccessMessage(success, this.gameState.getPlayer()));
-                if(gameState.getPlayer().getXp() <= 0) {
+                // Call the marshaller if we have reached a save command
+                if (isSaveCommand(input)) {
+                    messageDisplayer.accept(gameConfiguration.getSaveFileQuery());
+                    String path = inputProvider.get();
+                    gameStateMarshaller.save(gameState, path);
                     break;
                 }
-            }
 
-            List<Node> children = currentNode.getChildren();
-            Node nextNode;
-            // There are multiple paths
-            if (children.size() > 1) {
-                showNodeOptions(currentNode);
-                Integer nextNodeIndex = menuInputProvider.apply(1, children.size());
-                nextNode = children.get(nextNodeIndex - 1);
-                // If there is only one next node, just go to it
-            } else {
-                nextNode = children.get(0);
+                // Return if we have reached the last node
+                if (isLastNode(currentNode)) {
+                    currentNode = null;
+                    break;
+                }
+
+                // If there exists an enemy in the current node,
+                // initiate attack
+                if (currentNode.getCharacter() != null) {
+                    messageDisplayer.accept(attackMessage(this.gameState.getPlayer(), currentNode.getCharacter()));
+                    boolean success = getGameState().getPlayer().fight(currentNode.getCharacter());
+                    messageDisplayer.accept(getSuccessMessage(success, this.gameState.getPlayer()));
+                    if (gameState.getPlayer().getXp() <= 0) {
+                        break;
+                    }
+                }
+
+                List<Node> children = currentNode.getChildren();
+                Node nextNode;
+                // There are multiple paths
+                if (children.size() > 1) {
+                    showNodeOptions(currentNode);
+                    Integer nextNodeIndex = menuInputProvider.apply(1, children.size());
+                    nextNode = children.get(nextNodeIndex - 1);
+                    // If there is only one next node, just go to it
+                } else {
+                    nextNode = children.get(0);
+                }
+                currentNode = nextNode;
+                gameState.setCurrentNode(currentNode);
             }
-            currentNode = nextNode;
+            // update to null or next level if present
             gameState.setCurrentNode(currentNode);
         }
-        // update to null or next level if present
-        gameState.setCurrentNode(currentNode);
+    }
+
+    /**
+     *
+     * @param currentLevel
+     * @return
+     */
+    private int getLevelNumber(Level currentLevel) {
+        List<Level> levels = gameConfiguration.getLevels();
+        return IntStream.range(0, levels.size())
+                .filter(i -> levels.get(i) == currentLevel)
+                .findFirst()
+                .getAsInt();
     }
 
     private String getSuccessMessage(boolean success, Character player) {
